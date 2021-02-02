@@ -111,6 +111,8 @@ def depthFirstSearch(problem):
 
     return solution
 
+    # TODO: using recursive to implement DFS
+
 
 
     
@@ -120,7 +122,8 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # util.raiseNotDefined()
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
