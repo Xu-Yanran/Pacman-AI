@@ -82,76 +82,130 @@ def depthFirstSearch(problem):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
 
-    print("Start:", problem.getStartState())                                            (5, 5)
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))         False
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))        [((5, 4), 'South', 1), ((4, 5), 'West', 1)]
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    # check if it has been visited
+    # util.raiseNotDefined()
+    from util import Stack
+    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))      // this line cause the failure of q1????? 
+    actions = []
+    start_point = problem.getStartState()
+    fringe = Stack()
     visited = []
-    # this is the solution
-    solution = []
-    # contain state and path
-    stack = util.Stack()
-    start = problem.getStartState()
-    stack.push([start, solution])    
-
-    while not stack.isEmpty():
-        state, path = stack.pop()
-        if problem.isGoalState(state):
-            solution = path
+    fringe.push([start_point, actions])
+    flag = False
+    while flag != True:
+        if fringe.isEmpty():
+            print("Failure.")
+        node, act = fringe.pop()
+        if problem.isGoalState(node):
+            flag = True
+            print("Found solution")
+            actions = act
             break
-
-        if state not in visited:
-            visited.append(state)
-            for s in problem.getSuccessors(state):
-                if s not in visited:
-                    new_state = s[0]
-                    new_path = path + [s[1]]
-                    stack.push([new_state, new_path])
-
-    return solution
-
-    # TODO: using recursive to implement DFS
-
-
-
-    
-    
+        if node not in visited:                                             # Important!!!!!!!!!!!!!!
+            visited.append(node)
+            child_node = problem.getSuccessors(node)
+            for i in child_node:
+                if i[0] not in visited:
+                    # print("-------------------------------")
+                    # for v in visited:
+                    #     print(v)
+                    # print("-------------------------------")
+                    # print(i[0])
+                    temp = act.copy()
+                    temp.append(i[1])
+                    # print(act)
+                    # print(temp)
+                    fringe.push([i[0], temp])
+                
+    # for i in actions:
+    #     print(i)
+    # print("done!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    # actions = []
+    return actions
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     # util.raiseNotDefined()
+    from util import Queue
     visited = []
-    solution = []
-    queue = util.Queue()
-    start = problem.getStartState()
-    queue.push([start, []])
+    actions = []
+    fringe = Queue()
+    start_point = problem.getStartState()
+    flag = False
+    count = 0
 
-    while not queue.isEmpty():
-        state, path = queue.pop()
-        if problem.isGoalState(state):
-            solution = path
+    fringe.push([start_point, actions])
+    while flag != True:
+        count += 1
+        if fringe.isEmpty():
+            print("Failure")
             break
-
-        if state not in visited:
-            visited.append(state)
-            for s in problem.getSuccessors(state):
-                if s not in visited:
-                    new_state = s[0]
-                    new_path = path + [s[1]]
-                    queue.push([new_state, new_path])
-
-    return solution
-
-
+        node, act = fringe.pop()
+        if problem.isGoalState(node):
+            print("Found solution")
+            actions = act
+            break
+        if node not in visited:                                             # Important!!!!!!!!!!!!!!
+            visited.append(node)
+            # print(visited)
+            child_node = problem.getSuccessors(node)
+            for i in child_node:
+                if i[0] not in visited:
+                    # print(i[0])
+                    # print("-------------------------------")
+                    # print("count: ", count)
+                    # print("node: ", node)
+                    # for v in visited:
+                    #     print(v)
+                    # print("child: ", i[0])
+                    # print("-------------------------------")
+                    temp = act.copy()
+                    temp.append(i[1])
+                    # print(temp)
+                    fringe.push([i[0], temp])
+    # for i in actions:
+    #     print(i)
+    # print(visited)
+    # actions = []
+    return actions
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # util.raiseNotDefined()
+    from util import PriorityQueue
+    visited = []
+    actions = []
+    cost = 0
+    fringe = PriorityQueue()
+    start_point = problem.getStartState()
+    
+    fringe.push([start_point, actions, cost], 0)
+    while(True):
+        if fringe.isEmpty():
+            print("Failure")
+            break
+        node, act, c = fringe.pop()
+        if problem.isGoalState(node):
+            print("Found solution")
+            actions = act
+            break
+        if node not in visited:
+            visited.append(node)
+            child_node = problem.getSuccessors(node)
+            for i in child_node:
+                if i[0] not in visited:
+                    temp = act.copy()
+                    temp.append(i[1])
+                    fringe.push([i[0], temp, c+i[2]], c+i[2])
+
+    return actions
 
 def nullHeuristic(state, problem=None):
     """
@@ -163,8 +217,33 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    # util.raiseNotDefined()
+    from util import PriorityQueue
+    visited = []
+    actions = []
+    cost = 0
+    fringe = PriorityQueue()
+    start_point = problem.getStartState()
+    
+    fringe.push([start_point, actions, cost], heuristic(start_point, problem))
+    while(True):
+        if fringe.isEmpty():
+            print("Failure")
+            break
+        node, act, c = fringe.pop()
+        if problem.isGoalState(node):
+            print("Found solution")
+            actions = act
+            break
+        if node not in visited:
+            visited.append(node)
+            child_node = problem.getSuccessors(node)
+            for i in child_node:
+                if i[0] not in visited:
+                    temp = act.copy()
+                    temp.append(i[1])
+                    fringe.push([i[0], temp, c+i[2]], c+i[2]+heuristic(i[0], problem))
+    return actions
 
 # Abbreviations
 bfs = breadthFirstSearch

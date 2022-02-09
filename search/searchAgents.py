@@ -288,21 +288,54 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        # self.flag_left_down = False
+        # self.flag_left_top = False
+        # self.flag_right_down = False
+        # self.flag_right_top = False
 
+        # self.startState = (self.startingPosition, (0, 0, 0, 0))
+        # self.goalState = ((self.corners[0], (1, 1, 1, 1)), (self.corners[1], (1, 1, 1, 1)), (self.corners[2], (1, 1, 1, 1)), (self.corners[3], (1, 1, 1, 1)))
+        self.startState = (self.startingPosition, [0, 0, 0, 0])
+        self.goalState = ((self.corners[0], [1, 1, 1, 1]), (self.corners[1], [1, 1, 1, 1]), (self.corners[2], [1, 1, 1, 1]), (self.corners[3], [1, 1, 1, 1]))
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
+        return self.startState
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
+        # print("---------------------")
+        # print(type(state))
+        # print("---------------------")
+        # if state == self.corners[0]:
+        #     self.flag_left_down = True
+        #     # print("1")
+        # elif state == self.corners[1]:
+        #     self.flag_left_top = True
+        #     # print("2")
+        # elif state == self.corners[2]:
+        #     self.flag_right_down = True
+        #     # print("3")
+        # elif state == self.corners[3]:
+        #     self.flag_right_top = True
+        #     # print("4")
+
+        # if self.flag_left_down and self.flag_left_top and self.flag_right_down and self.flag_right_top:
+        #     return True
+        # else:
+        #     return False
+        return state in self.goalState
+
+
+        
 
     def getSuccessors(self, state):
         """
@@ -325,6 +358,36 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            # print("--------------------------------------")
+            # print(state)
+            # print("--------------------------------------")
+            temp, flag = state
+            flag2 = flag[:]                                             # why should I copy the flag??????????????????
+            x, y = temp
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                cost = 1
+                tempPos = (nextx, nexty)
+                if tempPos == self.corners[0]:
+                    # self.flag_left_down == True
+                    # print("1")
+                    # flag[0] = 1
+                    flag2[0] = 1
+                elif tempPos == self.corners[1]:
+                    # self.flag_left_top == True
+                    # print("2")
+                    flag2[1] = 1
+                elif tempPos == self.corners[2]:
+                    # self.flag_right_down == True
+                    # print("3")
+                    flag2[2] = 1
+                elif tempPos == self.corners[3]:
+                    # self.flag_right_top == True
+                    # print("4")
+                    flag2[3] = 1
+                nextState = ((nextx, nexty), flag2)
+                successors.append( ( nextState, action, cost) )
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -360,7 +423,24 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    pos = state[0]
+    flagList = state[1]
+
+    dist1 = abs(pos[0] - corners[0][0]) + abs(pos[1] - corners[0][1])
+    dist2 = abs(pos[0] - corners[1][0]) + abs(pos[1] - corners[1][1])
+    dist3 = abs(pos[0] - corners[2][0]) + abs(pos[1] - corners[2][1])
+    dist4 = abs(pos[0] - corners[3][0]) + abs(pos[1] - corners[3][1])
+    
+    distList = [dist1, dist2, dist3, dist4]
+
+    totalDist = 0
+    for i in range(4):
+        # totalDist += distList[i] * (1 - flagList[i])
+        distList[i] = distList[i] * (1 - flagList[i])
+    # print(totalDist)
+    # return int(totalDist * 0.5)
+    return max(distList)
+    # return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -454,7 +534,23 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    # print(position)
+    # print("--------------------------")
+    # print(foodGrid.asList())
+    # print("--------------------------")
+    foodPos = foodGrid.asList()
+    pos = state[0]
+    distList = []
+    if len(foodPos) == 0:
+        return 0
+    else:
+        for i in range(len(foodPos)):
+            dist = abs(pos[0] - foodPos[i][0]) + abs(pos[1] - foodPos[i][1])
+            distList.append(dist)
+        return max(distList)                    # Stanford A* Heuristic multi goal policy
+
+    
+    # return 0
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -485,7 +581,11 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
+        # print(food)
+        # foodPos = food.asList()
+        return search.breadthFirstSearch(problem)
+        
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -521,7 +621,13 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
+        # foodPos = self.food.asList()
+        # if len(foodPos) == 0:
+        #     return True
+        # else:
+        #     return False
+        return state in self.food.asList()
 
 def mazeDistance(point1, point2, gameState):
     """
